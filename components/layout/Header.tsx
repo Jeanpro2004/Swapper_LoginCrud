@@ -1,4 +1,5 @@
 import Link from "next/link";
+import LogoutButton from "@/components/auth/LogoutButton";
 
 export default function Header() {
   return (
@@ -12,6 +13,7 @@ export default function Header() {
             <li><Link href="/wardrobe">Mi armario</Link></li>
             <li><Link href="/feed">Feed</Link></li>
             <li><Link href="/matches">Matches</Link></li>
+            <li><LogoutButton /></li>
           </ul>
         </nav>
       </div>

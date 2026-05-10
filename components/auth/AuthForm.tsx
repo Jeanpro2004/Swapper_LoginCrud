@@ -1,8 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/browser";
 
 export default function AuthForm() {
+  const router = useRouter();
+  const supabase = createClient();
+
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -10,19 +15,19 @@ export default function AuthForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const endpoint =
-      mode === "login" ? "/api/auth/login" : "/api/auth/register";
+    const result =
+      mode === "login"
+        ? await supabase.auth.signInWithPassword({ email, password })
+        : await supabase.auth.signUp({ email, password });
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    if (result.error) {
+      alert(result.error.message);
+      return;
+    }
 
-    const data = await response.json();
-    console.log(data);
+    alert(mode === "login" ? "Inicio de sesión exitoso" : "Cuenta creada");
+    router.push("/wardrobe");
+    router.refresh();
   }
 
   return (
@@ -48,9 +53,10 @@ export default function AuthForm() {
             id="password"
             type="password"
             required
+            minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="********"
+            placeholder="Mínimo 6 caracteres"
           />
         </div>
 
@@ -60,17 +66,12 @@ export default function AuthForm() {
       </fieldset>
 
       <div className="auth-switch">
-        <p>
-          {mode === "login"
-            ? "¿No tienes cuenta?"
-            : "¿Ya tienes cuenta?"}
-        </p>
+        <p>{mode === "login" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}</p>
+
         <button
           type="button"
           className="text-btn"
-          onClick={() =>
-            setMode(mode === "login" ? "register" : "login")
-          }
+          onClick={() => setMode(mode === "login" ? "register" : "login")}
         >
           {mode === "login" ? "Crear cuenta" : "Iniciar sesión"}
         </button>
