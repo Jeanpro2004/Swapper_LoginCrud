@@ -13,22 +13,30 @@ export default function AuthForm() {
   const [password, setPassword] = useState("");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  e.preventDefault();
 
+  console.log("Formulario enviado");
+
+  try {
     const result =
       mode === "login"
         ? await supabase.auth.signInWithPassword({ email, password })
         : await supabase.auth.signUp({ email, password });
+
+    console.log("Resultado Supabase:", result);
 
     if (result.error) {
       alert(result.error.message);
       return;
     }
 
-    alert(mode === "login" ? "Inicio de sesión exitoso" : "Cuenta creada");
-    router.push("/wardrobe");
-    router.refresh();
+    alert("Acceso correcto");
+    window.location.assign("/wardrobe");
+  } catch (error) {
+    console.error("Error inesperado:", error);
+    alert("Error inesperado al iniciar sesión");
   }
+}
 
   return (
     <form onSubmit={handleSubmit} className="auth-form">
@@ -60,9 +68,9 @@ export default function AuthForm() {
           />
         </div>
 
-        <button type="submit" className="primary-btn">
-          {mode === "login" ? "Ingresar" : "Registrarse"}
-        </button>
+       <button type="submit" className="primary-btn">
+        {mode === "login" ? "Ingresar" : "Registrarse"}
+       </button>
       </fieldset>
 
       <div className="auth-switch">
